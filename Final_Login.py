@@ -21,10 +21,6 @@ class loginForm:
             root.destroy()
             #Open new window
             newroot = Tk()
-            newroot.geometry("700x500")
-            bg = PhotoImage(file="Menu.png")
-            label1 = Label(newroot,image=bg)
-            label1.place(x=0,y=0)
             application = MenuUtama(newroot)
             newroot.mainloop()
         else:
