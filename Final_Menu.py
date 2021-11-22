@@ -3,11 +3,9 @@ import sqlite3
 from tkinter.ttk import Treeview
 from tkcalendar import Calendar
 import datetime as datee
+from tkinter import messagebox
 
 class MenuUtama:
-    con = sqlite3.connect('catering.db')
-    c = con.cursor()
-
     def __init__(self,root):
         self.root = root
         root.title('Menu Utama Catering')
@@ -36,7 +34,7 @@ class MenuUtama:
             trv.delete(*trv.get_children())
             con = sqlite3.connect('catering.db')
             c = con.cursor()
-            c.execute("SELECT * FROM datapesananbarubaru")
+            c.execute("SELECT * FROM datapesananbarubaru ORDER BY tgl_krm ASC")
             fetch = c.fetchall()
             for data in fetch:
                 trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
@@ -48,11 +46,9 @@ class MenuUtama:
             if value == 1:
                 myLabel=Label(self.wrapper1, text="Perikahan")
                 myLabel.grid(row=3, column=0,sticky=W)
-                #myLabel.delete(0,END)
             elif value == 2:
                 myLabel =Label(self.wrapper1, text="Ulang Tahun")
                 myLabel.grid(row=3, column=0,sticky=W)
-                #myLabel.delete(0,END)
 
 
         #Tombol Form Pesanan
@@ -78,22 +74,27 @@ class MenuUtama:
 
         def hitungTotal():
             global hargaakhir
-            if paket.get() == 1:
-                porsi = int(porsiEntry.get())
-                hargaakhir = porsi * 25000
-                hargaCounter.config(text = 'Total Harga : '+str(hargaakhir))
-                
-            elif paket.get() == 2:
-                porsi = int(porsiEntry.get())
-                hargaakhir = porsi * 30000
-                hargaCounter.config(text = 'Total Harga : '+str(hargaakhir))
+            try:
+                if paket.get() == 1 and int(porsiEntry.get()) >=150:
+                    porsi = int(porsiEntry.get())
+                    hargaakhir = porsi * 25000
+                    hargaCounter.config(text = 'Total Harga : '+str(hargaakhir))
+                    
+                elif paket.get() == 2 and int(porsiEntry.get()) >=150:
+                    porsi = int(porsiEntry.get())
+                    hargaakhir = porsi * 30000
+                    hargaCounter.config(text = 'Total Harga : '+str(hargaakhir))
+                else:
+                    messagebox.showerror("ERROR","Silahkan Pilih Paket dan Porsi diatas 150!")
+            except:
+                messagebox.showerror("ERROR","Silahkan isi porsi!")        
 
         hargaCounter = Label (self.wrapper1,text = 'Total Harga : ')
         hargaCounter.grid(row=7, column=0,sticky=W)
         hargaButton = Button(self.wrapper1,text = "Hitung Harga", command=hitungTotal).grid(row=8,column=0,sticky=W)
-        noLabel = Label(self.wrapper1,text ="Masukan NO Telpon :").grid(row=9,column=0,sticky=W)
+        noLabel = Label(self.wrapper1,text ="NO Telepon :").grid(row=9,column=0,sticky=W)
         noEntry = Entry(self.wrapper1)
-        noEntry.grid(row=9,column=1)
+        noEntry.grid(row=9,column=1,sticky=W)
         gapMaker = Label(self.wrapper1,text = "       ").grid(row=0,rowspan=10,column=2)
         ttglkirim = Label(self.wrapper1,text = 'Tanggal Kirim ',bg="blue",fg="white").grid(row=0, column=3)
         saveBuxtton = Button(self.wrapper1,text='Pilih Tanggal',command=grad_date,bg="blue",fg="white")
@@ -102,59 +103,93 @@ class MenuUtama:
         dateTtl.grid(row=1,column=3)
         
         
-        #Tombol Functions SQLITE
+        # Functions SQLITE
+
+        def validasi():
+            return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
+                hargaakhir != "" and noEntry.get() != ""
         
         def tambahData():
-            trv.delete(*trv.get_children())
-            con = sqlite3.connect('catering.db')
-            c = con.cursor()
-            if paket.get() == 1:
-                paket1 = "Pernikahan"
-            elif paket.get() == 2:
-                paket1 = "Ulang Tahun"
-            c.execute("INSERT INTO datapesananbarubaru VALUES (:nama, :paket, :porsi, :alamat, :tglpesan, :tglkirim, :harga, :notelp)",
-                    {
-                        'nama' : namaEntry.get(),
-                        'paket' : paket1,
-                        'porsi' : porsiEntry.get(),
-                        'alamat' : alamatEntry.get(),
-                        'tglpesan' : x,
-                        'tglkirim' : cal.get_date(),
-                        'harga' : hargaakhir,
-                        'notelp' : noEntry.get(),
-                    }
-                    )
-            con.commit()
-            c.execute("SELECT * FROM datapesananbarubaru")
-            fetch = c.fetchall()
-            for data in fetch:
-                    trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
+            if validasi():
+                try:
+                    trv.delete(*trv.get_children())
+                    con = sqlite3.connect('catering.db')
+                    c = con.cursor()
+                    if paket.get() == 1:
+                        paket1 = "Pernikahan"
+                    elif paket.get() == 2:
+                        paket1 = "Ulang Tahun"
+                    c.execute("INSERT INTO datapesananbarubaru VALUES (:nama, :paket, :porsi, :alamat, :tglpesan, :tglkirim, :harga, :notelp)",
+                            {
+                                'nama' : namaEntry.get(),
+                                'paket' : paket1,
+                                'porsi' : porsiEntry.get(),
+                                'alamat' : alamatEntry.get(),
+                                'tglpesan' : x,
+                                'tglkirim' : cal.get_date(),
+                                'harga' : hargaakhir,
+                                'notelp' : noEntry.get(),
+                            }
+                            )
+                    con.commit()
+                    c.execute("SELECT * FROM datapesananbarubaru")
+                    fetch = c.fetchall()
+                    for data in fetch:
+                            trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
 
-            con.commit()
-            con.close()
+                    con.commit()
+                    con.close()
+                except ValueError:
+                    messagebox.showerror("ERROR","Silahkan Masukan data yang benar!")
+
+            else:
+                messagebox.showerror("ERROR","Silahkan Isi semua data!")
+
+
+        def validData():
+            return len(dataNama.get()) != 0
 
         def hapusData():
-            con = sqlite3.connect('catering.db')
-            c = con.cursor()
-            c.execute("DELETE FROM datapesananbarubaru WHERE notlp = "+dataNama.get())
-            con.commit()
-            trv.delete(*trv.get_children())
-            c.execute("SELECT * FROM datapesananbarubaru")
-            fetch = c.fetchall()
-            for data in fetch:
-                trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
-            con.commit()
-            con.close()
+            if validData():
+                try:
+                    con = sqlite3.connect('catering.db')
+                    c = con.cursor()
+                    c.execute(f"DELETE FROM datapesananbarubaru WHERE nama = '{dataNama.get()}'")
+                    con.commit()
+                    trv.delete(*trv.get_children())
+                    c.execute("SELECT * FROM datapesananbarubaru")
+                    fetch = c.fetchall()
+                    for data in fetch:
+                        trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
+                    con.commit()
+                    con.close()
+                    messagebox.showinfo("Success","Data Berhasil Dihapus")
+                    dataNama.delete(0,END)
+                except ValueError:
+                    messagebox.showerror("ERROR","Isi data yanga akan dihapus!")
+            else:
+                messagebox.showerror("ERROR","Data Kosong!")
 
-        #Tombol Operasi
-        #resetButton = Button(self.wrapper1,text="Reset Form",command=resetForm).grid(row=6,column=4)
-        gapmaker2 = Label(self.wrapper1,text ="        ").grid(rowspan=9,column=5)
-        labelHapus = Label(self.wrapper1,text ="Data yang akan dihapus adalah : ").grid(row=8,column=7)
-        refreshButton = Button(self.wrapper1,text ="Refresh Table",bg="yellow",command=DatabaseView).grid(row=9,column=6)
-        hapusButton = Button(self.wrapper1,text ="Hapus Data",bg="red",fg="white",command=hapusData).grid(row=9,column=8)
+        def resetForm():
+            namaEntry.delete(0,END)
+            paket.set(None)
+            porsiEntry.delete(0,END)
+            alamatEntry.delete(0,END)
+            hargaCounter.config(text ="Total Harga :")
+            noEntry.delete(0,END)
+            dateTtl.config(text ="Tanggal yang dipilih : ")
+            
+
+        # Tombol Operasi SQLite
+
+        resetButton = Button(self.wrapper1,text="Reset Form",command=resetForm,bg="red",fg="white").grid(row=9,column=5)
+        #gapmaker2 = Label(self.wrapper1,text ="     ",bg='red').grid(rowspan=7,column=4)
+        labelHapus = Label(self.wrapper1,text ="Data yang akan dihapus adalah : ").grid(row=8,column=6)
+        refreshButton = Button(self.wrapper1,text ="Refresh Table",bg="yellow",command=DatabaseView).grid(row=9,column=3,sticky=E)
+        hapusButton = Button(self.wrapper1,text ="Hapus Data",bg="red",fg="white",command=hapusData).grid(row=9,column=7)
         dataNama = Entry(self.wrapper1)
-        dataNama.grid(row=9,column=7)
-        simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3,sticky=E)
+        dataNama.grid(row=9,column=6)
+        simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3)
 
 
         #Harga Menu
@@ -190,7 +225,7 @@ class MenuUtama:
             dataNama.delete(0,END)
             selected = trv.focus()
             values = trv.item(selected,'values')
-            dataNama.insert(0,values[7])
+            dataNama.insert(0,values[0])
         
         #Event Listener
         trv.bind("<Double-1>",selector)

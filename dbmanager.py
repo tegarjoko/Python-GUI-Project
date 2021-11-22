@@ -15,7 +15,7 @@ c = con.cursor()
 
 
 #c.execute("INSERT INTO datapesananbarubaru VALUES ('Tegar','Ulang Tahun','100','Jl.Swadaya 2,Kec.Tambun Selatan,Kab.Bekasi','21/11/2021','25/11/2021','2000000','08122304844')")
-#c.execute("DELETE FROM datapesananbarubaru")
+#c.execute("DELETE FROM datapesananbarubaru WHERE nama = 'Dosen 3'")
 c.execute("SELECT * FROM datapesananbarubaru")
 print(c.fetchall())
 con.commit()
