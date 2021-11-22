@@ -1,5 +1,6 @@
 from tkinter import *
 from Final_Menu import *
+from tkinter import messagebox
 
 class loginForm:
 
@@ -24,8 +25,8 @@ class loginForm:
             application = MenuUtama(newroot)
             newroot.mainloop()
         else:
-            self.message = Label(text = 'Username Salah! Silahkan coba lagi.',fg = 'Red')
-            self.message.place(x=200,y=250)
+            messagebox.showerror("ERROR","Username salah! Silahkan coba lagi")
+            self.username.delete(0,END)
 
 if __name__ == '__main__':
 
