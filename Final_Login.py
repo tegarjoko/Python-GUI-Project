@@ -11,13 +11,16 @@ class loginForm:
         self.root = root
         self.root.title('LOGIN SCREEN')
 
-        Label(text = ' Username ',font='Times 15').place(x = 200, y =175)
-        self.username = Entry()
-        self.username.place(x=200,y=200)
+        Label(text = ' PASSWORD ',font='Times 15',bg='#002233',fg='white').place(x = 200, y =100)
+        self.username = Entry(show='*')
+        self.username.place(x=200,y=135)
+ 
 
-        Button(text='LOGIN',command=self.login_user).place(x=200,y=220)
+        self.lala = Button(text='LOGIN',command=self.login_user)
+        self.lala.place(x=240,y=170)
+        root.bind("<Return>",self.login_user)
 
-    def login_user(self):
+    def login_user(self,Event):
         if self.username.get() == self.user:
             root.destroy()
             #Open new window
@@ -31,8 +34,8 @@ class loginForm:
 if __name__ == '__main__':
 
     root = Tk()
-    root.geometry("700x500")
-    bg = PhotoImage(file="Menu.png")
+    root.geometry("500x300")
+    bg = PhotoImage(file="Menuu.png")
     label1 = Label(root, image = bg)
     label1.place(x = 0, y = 0)
     application = loginForm(root)

@@ -6,23 +6,22 @@ import datetime as datee
 from tkinter import messagebox
 
 class MenuUtama:
+
     def __init__(self,root):
         self.root = root
         root.title('Menu Utama Catering')
-        root.geometry("1020x500")
+        root.geometry("1020x600")
         root.config(bg='lightblue')
         self.wrapper1 = LabelFrame(root,text = "Form Pesanan Baru")
         self.wrapper1.pack(fill=BOTH,padx=15,pady=(15,0))
-        self.wrapper2 = LabelFrame(root,text = "Data Pesanan",bg="#0f084b",fg="white")
+        self.wrapper2 = LabelFrame(root,text = "Data Pesanan",bg="lightblue",fg="black")
         self.wrapper2.pack(fill=BOTH,expand=True,padx=15,pady=(0,15))
-
-
 
         #Function
 
         paket = IntVar()
 
-        x = datee.datetime.now().strftime(f"%d - %m - %Y")
+        x = datee.datetime.now().strftime(f"%d/%m/%y")
 
         cal = Calendar(self.wrapper1, selectmode = 'day')
         cal.grid(row=2,rowspan = 7, column = 3)
@@ -41,21 +40,15 @@ class MenuUtama:
             con.commit()
             con.close()
         
-
-        def clicked(value):
-            if value == 1:
-                myLabel=Label(self.wrapper1, text="Perikahan")
-                myLabel.grid(row=3, column=0,sticky=W)
-            elif value == 2:
-                myLabel =Label(self.wrapper1, text="Ulang Tahun")
-                myLabel.grid(row=3, column=0,sticky=W)
-
-
+        
         #Tombol Form Pesanan
+
         nama = Label(self.wrapper1, text = 'Masukan Nama Anda ').grid(row=0, column=0,sticky=W)
         namaEntry = Entry(self.wrapper1,width =30)
         namaEntry.grid(row=0, column=1,sticky=W)
         paketLabel = Label(self.wrapper1, text = 'Pilih Paket Anda ').grid(row=1, column=0,sticky=W)
+        myLabel=Label(self.wrapper1, text="")
+        myLabel.grid(row=3, column=0,sticky=W)
         r1 = Radiobutton(self.wrapper1,text='Pernikahan',variable=paket,value=1)
         r1.grid(row=1, column=1,sticky=W)
         r2 = Radiobutton(self.wrapper1,text='Ulang Tahun',variable=paket,value=2)
@@ -72,6 +65,12 @@ class MenuUtama:
         tanggalEntry = Label(self.wrapper1,text = x )
         tanggalEntry.grid(row=6, column=1,sticky=W)
 
+        def clicked(value):
+            if value == 1:
+                myLabel.config(text="Pernikahan")
+            elif value == 2:
+                myLabel.config(text="Ulang Tahun")
+
         def hitungTotal():
             global hargaakhir
             try:
@@ -79,7 +78,6 @@ class MenuUtama:
                     porsi = int(porsiEntry.get())
                     hargaakhir = porsi * 25000
                     hargaCounter.config(text = 'Total Harga : '+str(hargaakhir))
-                    
                 elif paket.get() == 2 and int(porsiEntry.get()) >=150:
                     porsi = int(porsiEntry.get())
                     hargaakhir = porsi * 30000
@@ -87,10 +85,24 @@ class MenuUtama:
                 else:
                     messagebox.showerror("ERROR","Silahkan Pilih Paket dan Porsi diatas 150!")
             except:
-                messagebox.showerror("ERROR","Silahkan isi porsi!")        
+                messagebox.showerror("ERROR","Silahkan isi porsi!")  
+
+        def hitungKembalian():
+            try:
+                cash = int(inputCash.get())
+                kembaliannya = cash - hargaakhir
+                kembalianOutput.config(text = ""+str(kembaliannya))
+            except:
+                messagebox.showerror("ERROR","Ada yang salah")
 
         hargaCounter = Label (self.wrapper1,text = 'Total Harga : ')
         hargaCounter.grid(row=7, column=0,sticky=W)
+        inputCashHolder = Label (self.wrapper1,text ="Cash :").grid(row=7,column=1,sticky=W)
+        inputCash = Entry (self.wrapper1,width=20)
+        inputCash.grid(row=7,column=1,sticky=E)
+        kembalianHolder = Button (self.wrapper1,text = "Hitung Kembalian",command=hitungKembalian).grid(row=8,column=1,sticky=W)
+        kembalianOutput = Label(self.wrapper1,text = "")
+        kembalianOutput.grid(row=8,column=1,sticky=E)
         hargaButton = Button(self.wrapper1,text = "Hitung Harga", command=hitungTotal).grid(row=8,column=0,sticky=W)
         noLabel = Label(self.wrapper1,text ="NO Telepon :").grid(row=9,column=0,sticky=W)
         noEntry = Entry(self.wrapper1)
@@ -102,8 +114,8 @@ class MenuUtama:
         dateTtl = Label(self.wrapper1,text ="Tanggal yang dipilih : ")
         dateTtl.grid(row=1,column=3)
         
-        
         # Functions SQLITE
+        
 
         def validasi():
             return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
@@ -139,12 +151,12 @@ class MenuUtama:
 
                     con.commit()
                     con.close()
+                    messagebox.showinfo("SUCCESS","Data Berhasil Disimpan!")
                 except ValueError:
                     messagebox.showerror("ERROR","Silahkan Masukan data yang benar!")
 
             else:
                 messagebox.showerror("ERROR","Silahkan Isi semua data!")
-
 
         def validData():
             return len(dataNama.get()) != 0
@@ -170,27 +182,33 @@ class MenuUtama:
             else:
                 messagebox.showerror("ERROR","Data Kosong!")
 
+        def validasireset():
+            return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
+                    hargaakhir != "" and noEntry.get() != ""
+        
         def resetForm():
-            namaEntry.delete(0,END)
-            paket.set(None)
-            porsiEntry.delete(0,END)
-            alamatEntry.delete(0,END)
-            hargaCounter.config(text ="Total Harga :")
-            noEntry.delete(0,END)
-            dateTtl.config(text ="Tanggal yang dipilih : ")
-            
-
+                try:
+                    myLabel.config(text="")
+                    namaEntry.delete(0,END)
+                    paket.set(None)
+                    porsiEntry.delete(0,END)
+                    alamatEntry.delete(0,END)
+                    hargaCounter.config(text ="Total Harga :")
+                    noEntry.delete(0,END)
+                    dateTtl.config(text ="Tanggal yang dipilih : ")
+                except:
+                    messagebox.showerror("ERROR","Data Sudah Kosong!")
+                
         # Tombol Operasi SQLite
 
-        resetButton = Button(self.wrapper1,text="Reset Form",command=resetForm,bg="red",fg="white").grid(row=9,column=5)
-        #gapmaker2 = Label(self.wrapper1,text ="     ",bg='red').grid(rowspan=7,column=4)
-        labelHapus = Label(self.wrapper1,text ="Data yang akan dihapus adalah : ").grid(row=8,column=6)
-        refreshButton = Button(self.wrapper1,text ="Refresh Table",bg="yellow",command=DatabaseView).grid(row=9,column=3,sticky=E)
+        resetButton = Button(self.wrapper1,text="Reset Form",command=resetForm,bg="red",fg="white").grid(row=9,column=8)
+        gapmaker2 = Label(self.wrapper1,text ="   ").grid(rowspan=7,column=4)
+        labelHapus = Label(self.wrapper1,text ="Data yang Terpilih adalah : ").grid(row=8,column=6)
+        refreshButton = Button(self.wrapper1,text ="View Table",bg="yellow",command=DatabaseView,padx=5).grid(row=9,column=3,sticky=E)
         hapusButton = Button(self.wrapper1,text ="Hapus Data",bg="red",fg="white",command=hapusData).grid(row=9,column=7)
         dataNama = Entry(self.wrapper1)
         dataNama.grid(row=9,column=6)
         simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3)
-
 
         #Harga Menu
         menu1 = Label(self.wrapper1,text ="PAKET PERNIKAHAN \n 1. Ayam Gulai \n 2. Sop Kambing \n 3. Asinan \n 4. AQUA \n\n Rp.25,000",bg="lightblue").grid(row=1,rowspan=6,column=6)
