@@ -1,6 +1,7 @@
 from tkinter import *
 import sqlite3
 from tkinter.ttk import Treeview
+from typing import MutableMapping
 from tkcalendar import Calendar
 import datetime as datee
 from tkinter import messagebox
@@ -151,7 +152,45 @@ class MenuUtama:
 
                     con.commit()
                     con.close()
+                    resetForm()
                     messagebox.showinfo("SUCCESS","Data Berhasil Disimpan!")
+                except ValueError:
+                    messagebox.showerror("ERROR","Silahkan Masukan data yang benar!")
+
+            else:
+                messagebox.showerror("ERROR","Silahkan Isi semua data!")
+
+        def updateData():
+            if validasi():
+                try:
+                    trv.delete(*trv.get_children())
+                    con = sqlite3.connect('catering.db')
+                    c = con.cursor()
+                    if paket.get() == 1:
+                        paket1 = "Pernikahan"
+                    elif paket.get() == 2:
+                        paket1 = "Ulang Tahun"
+                    c.execute(f"UPDATE datapesananbarubaru SET nama = :nama, paket = :paket, porsi = :porsi, alamat = :alamat, tgl_psn = :tglpesan, tgl_krm = :tglkirim, total_harga = :harga, notlp = :notelp WHERE nama = '{dataNama.get()}'",
+                            {
+                                'nama' : namaEntry.get(),
+                                'paket' : paket1,
+                                'porsi' : porsiEntry.get(),
+                                'alamat' : alamatEntry.get(),
+                                'tglpesan' : x,
+                                'tglkirim' : cal.get_date(),
+                                'harga' : hargaakhir,
+                                'notelp' : noEntry.get(),
+                            }
+                            )
+                    con.commit()
+                    c.execute("SELECT * FROM datapesananbarubaru")
+                    fetch = c.fetchall()
+                    for data in fetch:
+                            trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
+                    con.commit()
+                    con.close()
+                    resetForm()
+                    messagebox.showinfo("SUCCESS","Data Berhasil Diupdate!")
                 except ValueError:
                     messagebox.showerror("ERROR","Silahkan Masukan data yang benar!")
 
@@ -177,15 +216,16 @@ class MenuUtama:
                     con.close()
                     messagebox.showinfo("Success","Data Berhasil Dihapus")
                     dataNama.delete(0,END)
+                    resetForm()
                 except ValueError:
-                    messagebox.showerror("ERROR","Isi data yanga akan dihapus!")
+                    messagebox.showerror("ERROR","Isi data yang akan dihapus!")
             else:
-                messagebox.showerror("ERROR","Data Kosong!")
+                messagebox.showerror("ERROR","Isi Data yang akan dihapus!")
 
         def validasireset():
             return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
                     hargaakhir != "" and noEntry.get() != ""
-        
+
         def resetForm():
                 try:
                     myLabel.config(text="")
@@ -196,6 +236,10 @@ class MenuUtama:
                     hargaCounter.config(text ="Total Harga :")
                     noEntry.delete(0,END)
                     dateTtl.config(text ="Tanggal yang dipilih : ")
+                    tanggalEntry.config(text = x)
+                    dataNama.delete(0,END)
+                    kembalianOutput.config(text ="")
+                    inputCash.delete(0,END)
                 except:
                     messagebox.showerror("ERROR","Data Sudah Kosong!")
                 
@@ -204,11 +248,12 @@ class MenuUtama:
         resetButton = Button(self.wrapper1,text="Reset Form",command=resetForm,bg="red",fg="white").grid(row=9,column=8)
         gapmaker2 = Label(self.wrapper1,text ="   ").grid(rowspan=7,column=4)
         labelHapus = Label(self.wrapper1,text ="Data yang Terpilih adalah : ").grid(row=8,column=6)
-        refreshButton = Button(self.wrapper1,text ="View Table",bg="yellow",command=DatabaseView,padx=5).grid(row=9,column=3,sticky=E)
+        refreshButton = Button(self.wrapper1,text ="Update Data",bg="yellow",command=updateData).grid(row=9,column=3,sticky=E)
         hapusButton = Button(self.wrapper1,text ="Hapus Data",bg="red",fg="white",command=hapusData).grid(row=9,column=7)
         dataNama = Entry(self.wrapper1)
         dataNama.grid(row=9,column=6)
         simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3)
+        updateButton = Button(self.wrapper2,text ="Refresh Table",bg="green",fg="white",command=DatabaseView).pack()
 
         #Harga Menu
         menu1 = Label(self.wrapper1,text ="PAKET PERNIKAHAN \n 1. Ayam Gulai \n 2. Sop Kambing \n 3. Asinan \n 4. AQUA \n\n Rp.25,000",bg="lightblue").grid(row=1,rowspan=6,column=6)
@@ -240,10 +285,29 @@ class MenuUtama:
         trv.pack()
 
         def selector(Event):
+            resetForm()
             dataNama.delete(0,END)
             selected = trv.focus()
             values = trv.item(selected,'values')
             dataNama.insert(0,values[0])
+            myLabel.config(text = values[1])
+            if myLabel.cget('text') == "Pernikahan":
+                paket.set(value = '1')
+                r1.invoke()
+            elif myLabel.cget('text') == "Ulang Tahun":
+                paket.set(value = '2')
+                r2.select()
+            else:
+                messagebox.showerror("ERROR","Sesuatu ada yang salah")
+            namaEntry.insert(0,values[0])
+            porsiEntry.insert(0,values[2])
+            alamatEntry.insert(0,values[3])
+            tanggalEntry.config(text = values[4])
+            dateTtl.config(text ="Tanggal yang dipilih : "+values[5])
+            hargaCounter.config(text = 'Total Harga : '+values[6])
+            noEntry.insert(0,values[7])
+
+
         
         #Event Listener
         trv.bind("<Double-1>",selector)
