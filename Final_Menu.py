@@ -1,7 +1,6 @@
 from tkinter import *
 import sqlite3
 from tkinter.ttk import Treeview
-from typing import MutableMapping
 from tkcalendar import Calendar
 import datetime as datee
 from tkinter import messagebox
@@ -13,10 +12,12 @@ class MenuUtama:
         root.title('Menu Utama Catering')
         root.geometry("1020x600")
         root.config(bg='lightblue')
+        root.iconbitmap('menu-ico.ico')
         self.wrapper1 = LabelFrame(root,text = "Form Pesanan Baru")
         self.wrapper1.pack(fill=BOTH,padx=15,pady=(15,0))
         self.wrapper2 = LabelFrame(root,text = "Data Pesanan",bg="lightblue",fg="black")
         self.wrapper2.pack(fill=BOTH,expand=True,padx=15,pady=(0,15))
+        
 
         #Function
 
@@ -67,10 +68,10 @@ class MenuUtama:
         tanggalEntry.grid(row=6, column=1,sticky=W)
 
         def clicked(value):
-            if value == 1:
-                myLabel.config(text="Pernikahan")
-            elif value == 2:
-                myLabel.config(text="Ulang Tahun")
+                if value == 1:
+                    myLabel.config(text="Pernikahan")
+                elif value == 2:
+                    myLabel.config(text="Ulang Tahun")
 
         def hitungTotal():
             global hargaakhir
@@ -222,10 +223,6 @@ class MenuUtama:
             else:
                 messagebox.showerror("ERROR","Isi Data yang akan dihapus!")
 
-        def validasireset():
-            return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
-                    hargaakhir != "" and noEntry.get() != ""
-
         def resetForm():
                 try:
                     myLabel.config(text="")
@@ -253,7 +250,7 @@ class MenuUtama:
         dataNama = Entry(self.wrapper1)
         dataNama.grid(row=9,column=6)
         simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3)
-        updateButton = Button(self.wrapper2,text ="Refresh Table",bg="green",fg="white",command=DatabaseView).pack()
+        updateButton = Button(self.wrapper2,text ="View Table",bg="green",fg="white",command=DatabaseView).pack()
 
         #Harga Menu
         menu1 = Label(self.wrapper1,text ="PAKET PERNIKAHAN \n 1. Ayam Gulai \n 2. Sop Kambing \n 3. Asinan \n 4. AQUA \n\n Rp.25,000",bg="lightblue").grid(row=1,rowspan=6,column=6)
