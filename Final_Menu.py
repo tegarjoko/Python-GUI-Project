@@ -6,7 +6,6 @@ import datetime as datee
 from tkinter import messagebox
 
 class MenuUtama:
-
     def __init__(self,root):
         self.root = root
         root.title('Menu Utama Catering')
@@ -18,19 +17,23 @@ class MenuUtama:
         self.wrapper2 = LabelFrame(root,text = "Data Pesanan",bg="lightblue",fg="black")
         self.wrapper2.pack(fill=BOTH,expand=True,padx=15,pady=(0,15))
         
+        # Function
 
-        #Function
-
+        #Mengdeklarasi paket sebagai variabel integer
         paket = IntVar()
-
+        
+        # Memanggil tanggal sekarang
         x = datee.datetime.now().strftime(f"%d/%m/%y")
 
+        # Function untuk Memilih tanggal 
         cal = Calendar(self.wrapper1, selectmode = 'day')
         cal.grid(row=2,rowspan = 7, column = 3)
 
+        # Mengambil data tanggal yang dipilih dari Calender
         def grad_date():
-            dateTtl.config(text ="Tanggal yang dipilih : "+ cal.get_date())  
+            dateTtl.config(text ="Tanggal yang dipilih : "+ cal.get_date())
 
+        # Melihat isi table dari database sqlite3
         def DatabaseView():
             trv.delete(*trv.get_children())
             con = sqlite3.connect('catering.db')
@@ -43,7 +46,7 @@ class MenuUtama:
             con.close()
         
         
-        #Tombol Form Pesanan
+        # Tombol Form Pesanan
 
         nama = Label(self.wrapper1, text = 'Masukan Nama Anda ').grid(row=0, column=0,sticky=W)
         namaEntry = Entry(self.wrapper1,width =30)
@@ -67,12 +70,14 @@ class MenuUtama:
         tanggalEntry = Label(self.wrapper1,text = x )
         tanggalEntry.grid(row=6, column=1,sticky=W)
 
+        # Menampilkan paket yang dipilih dari radiobutton
         def clicked(value):
                 if value == 1:
                     myLabel.config(text="Pernikahan")
                 elif value == 2:
                     myLabel.config(text="Ulang Tahun")
 
+        # Menghitung Total dari harga paket dikali jumlah porsi
         def hitungTotal():
             global hargaakhir
             try:
@@ -89,6 +94,7 @@ class MenuUtama:
             except:
                 messagebox.showerror("ERROR","Silahkan isi porsi!")  
 
+        # Function menghitung kembalian dari total harga dikurangi cash
         def hitungKembalian():
             try:
                 cash = int(inputCash.get())
@@ -97,6 +103,7 @@ class MenuUtama:
             except:
                 messagebox.showerror("ERROR","Ada yang salah")
 
+        # Lanjutan form Pesanan
         hargaCounter = Label (self.wrapper1,text = 'Total Harga : ')
         hargaCounter.grid(row=7, column=0,sticky=W)
         inputCashHolder = Label (self.wrapper1,text ="Cash :").grid(row=7,column=1,sticky=W)
@@ -117,12 +124,13 @@ class MenuUtama:
         dateTtl.grid(row=1,column=3)
         
         # Functions SQLITE
-        
 
+        # Function untuk memastikan form tidak kosong
         def validasi():
             return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
                 hargaakhir != "" and noEntry.get() != ""
-        
+
+        # Function menambah data yang sudah di input ke dalam database sqlite3
         def tambahData():
             if validasi():
                 try:
@@ -161,6 +169,7 @@ class MenuUtama:
             else:
                 messagebox.showerror("ERROR","Silahkan Isi semua data!")
 
+        # Function mengupdate data yang sudah di pilih ke dalam database sqlite3
         def updateData():
             if validasi():
                 try:
@@ -198,9 +207,11 @@ class MenuUtama:
             else:
                 messagebox.showerror("ERROR","Silahkan Isi semua data!")
 
+        #Functions untuk memastikan data yang dipilih tidak kosong
         def validData():
             return len(dataNama.get()) != 0
 
+        # Functions untuk menghapus data yang dipilih dari table
         def hapusData():
             if validData():
                 try:
@@ -223,6 +234,7 @@ class MenuUtama:
             else:
                 messagebox.showerror("ERROR","Isi Data yang akan dihapus!")
 
+        # Function untuk Mereset form pesanan agar kosong
         def resetForm():
                 try:
                     myLabel.config(text="")
@@ -252,11 +264,11 @@ class MenuUtama:
         simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3)
         updateButton = Button(self.wrapper2,text ="View Table",bg="green",fg="white",command=DatabaseView).pack()
 
-        #Harga Menu
+        # Tampilan Menu
         menu1 = Label(self.wrapper1,text ="PAKET PERNIKAHAN \n 1. Ayam Gulai \n 2. Sop Kambing \n 3. Asinan \n 4. AQUA \n\n Rp.25,000",bg="lightblue").grid(row=1,rowspan=6,column=6)
         menu2 = Label(self.wrapper1,text ="PAKET ULANG TAHUN \n 1. Butter Cake \n 2. French Fries \n 3. Ice Cream \n 4. Fanta \n\n Rp.30,000",bg="lightblue").grid(row=1,rowspan=6,column=7)
 
-        #Table View SQLite
+        # Menampilkan Isi di table dari database
         tree_scrollbar = Scrollbar(self.wrapper2)
         tree_scrollbar.pack(side=RIGHT,fill=Y)
         trv = Treeview(self.wrapper2,columns=(1,2,3,4,5,6,7,8),show='headings',yscrollcommand=tree_scrollbar.set)
@@ -280,7 +292,8 @@ class MenuUtama:
         trv.heading(7, text ="Total Harga")
         trv.heading(8, text ="No Telp")
         trv.pack()
-
+        
+        # Function Memilih table agar muncul di form
         def selector(Event):
             resetForm()
             dataNama.delete(0,END)
@@ -304,9 +317,7 @@ class MenuUtama:
             hargaCounter.config(text = 'Total Harga : '+values[6])
             noEntry.insert(0,values[7])
 
-
-        
-        #Event Listener
+        #Event Listener untuk mendengarkan double klik
         trv.bind("<Double-1>",selector)
 
 if __name__ == '__main__':
