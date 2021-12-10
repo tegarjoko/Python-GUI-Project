@@ -1,4 +1,5 @@
 from tkinter import *
+import Final_Login as fl
 import sqlite3
 from tkinter.ttk import Treeview
 from tkcalendar import Calendar
@@ -20,20 +21,25 @@ class MenuUtama:
         # Function
 
         #Mengdeklarasi paket sebagai variabel integer
+
         paket = IntVar()
         
         # Memanggil tanggal sekarang
+
         x = datee.datetime.now().strftime(f"%d/%m/%y")
 
         # Function untuk Memilih tanggal 
+
         cal = Calendar(self.wrapper1, selectmode = 'day')
         cal.grid(row=2,rowspan = 7, column = 3)
 
         # Mengambil data tanggal yang dipilih dari Calender
+
         def grad_date():
             dateTtl.config(text ="Tanggal yang dipilih : "+ cal.get_date())
 
         # Melihat isi table dari database sqlite3
+
         def DatabaseView():
             trv.delete(*trv.get_children())
             con = sqlite3.connect('catering.db')
@@ -71,6 +77,7 @@ class MenuUtama:
         tanggalEntry.grid(row=6, column=1,sticky=W)
 
         # Menampilkan paket yang dipilih dari radiobutton
+
         def clicked(value):
                 if value == 1:
                     myLabel.config(text="Pernikahan")
@@ -78,6 +85,7 @@ class MenuUtama:
                     myLabel.config(text="Ulang Tahun")
 
         # Menghitung Total dari harga paket dikali jumlah porsi
+
         def hitungTotal():
             global hargaakhir
             try:
@@ -95,6 +103,7 @@ class MenuUtama:
                 messagebox.showerror("ERROR","Silahkan isi porsi!")  
 
         # Function menghitung kembalian dari total harga dikurangi cash
+
         def hitungKembalian():
             try:
                 cash = int(inputCash.get())
@@ -104,6 +113,7 @@ class MenuUtama:
                 messagebox.showerror("ERROR","Ada yang salah")
 
         # Lanjutan form Pesanan
+
         hargaCounter = Label (self.wrapper1,text = 'Total Harga : ')
         hargaCounter.grid(row=7, column=0,sticky=W)
         inputCashHolder = Label (self.wrapper1,text ="Cash :").grid(row=7,column=1,sticky=W)
@@ -126,11 +136,13 @@ class MenuUtama:
         # Functions SQLITE
 
         # Function untuk memastikan form tidak kosong
+
         def validasi():
             return namaEntry.get() != "" and paket.get() != "" and porsiEntry.get() != "" and  alamatEntry.get() != "" and x != "" and cal.get_date() != "" and \
                 hargaakhir != "" and noEntry.get() != ""
 
         # Function menambah data yang sudah di input ke dalam database sqlite3
+
         def tambahData():
             if validasi():
                 try:
@@ -158,18 +170,17 @@ class MenuUtama:
                     fetch = c.fetchall()
                     for data in fetch:
                             trv.insert('', 'end', values=(data[0],data[1], data[2], data[3],data[4],data[5],data[6],data[7]))
-
                     con.commit()
                     con.close()
                     resetForm()
                     messagebox.showinfo("SUCCESS","Data Berhasil Disimpan!")
                 except ValueError:
                     messagebox.showerror("ERROR","Silahkan Masukan data yang benar!")
-
             else:
                 messagebox.showerror("ERROR","Silahkan Isi semua data!")
 
         # Function mengupdate data yang sudah di pilih ke dalam database sqlite3
+
         def updateData():
             if validasi():
                 try:
@@ -208,10 +219,12 @@ class MenuUtama:
                 messagebox.showerror("ERROR","Silahkan Isi semua data!")
 
         #Functions untuk memastikan data yang dipilih tidak kosong
+
         def validData():
             return len(dataNama.get()) != 0
 
         # Functions untuk menghapus data yang dipilih dari table
+
         def hapusData():
             if validData():
                 try:
@@ -235,6 +248,7 @@ class MenuUtama:
                 messagebox.showerror("ERROR","Isi Data yang akan dihapus!")
 
         # Function untuk Mereset form pesanan agar kosong
+
         def resetForm():
                 try:
                     myLabel.config(text="")
@@ -251,9 +265,28 @@ class MenuUtama:
                     inputCash.delete(0,END)
                 except:
                     messagebox.showerror("ERROR","Data Sudah Kosong!")
+
+        # Functin Exit MenuUtama
+
+        def exitMenu():
+            tglnya = datee.datetime.now().strftime(f"%d/%m/%y - %X")
+            con = sqlite3.connect('catering.db')
+            c = con.cursor()
+            c.execute("SELECT * FROM logadmin ORDER BY tglmasuk DESC")
+            fetchlog = c.fetchone()
+            namanya = fetchlog[0]
+            c.execute(f"UPDATE logadmin SET tglkeluar = '{tglnya}' WHERE nama = '{namanya}'")
+            con.commit()
+            con.close()
+            root.destroy()
+            # Membuka window baru (Final_Login)
+            rootLogin = Tk()
+            fl.loginForm(rootLogin)
+            rootLogin.mainloop()
                 
         # Tombol Operasi SQLite
 
+        exitButton = Button(self.wrapper2,text ="Exit",bg="red",fg="white",command=exitMenu).pack(side =BOTTOM)
         resetButton = Button(self.wrapper1,text="Reset Form",command=resetForm,bg="red",fg="white").grid(row=9,column=8)
         gapmaker2 = Label(self.wrapper1,text ="   ").grid(rowspan=7,column=4)
         labelHapus = Label(self.wrapper1,text ="Data yang Terpilih adalah : ").grid(row=8,column=6)
@@ -264,16 +297,18 @@ class MenuUtama:
         simpanButton = Button(self.wrapper1,text="Simpan Data",bg="green",fg="white",command=tambahData).grid(row=9,column=3)
         updateButton = Button(self.wrapper2,text ="View Table",bg="green",fg="white",command=DatabaseView).pack()
 
-        # Tampilan Menu
+        # Tampilan Menu Makanan
+
         menu1 = Label(self.wrapper1,text ="PAKET PERNIKAHAN \n 1. Ayam Gulai \n 2. Sop Kambing \n 3. Asinan \n 4. AQUA \n\n Rp.25,000",bg="lightblue").grid(row=1,rowspan=6,column=6)
         menu2 = Label(self.wrapper1,text ="PAKET ULANG TAHUN \n 1. Butter Cake \n 2. French Fries \n 3. Ice Cream \n 4. Fanta \n\n Rp.30,000",bg="lightblue").grid(row=1,rowspan=6,column=7)
 
         # Menampilkan Isi di table dari database
+
         tree_scrollbar = Scrollbar(self.wrapper2)
         tree_scrollbar.pack(side=RIGHT,fill=Y)
         trv = Treeview(self.wrapper2,columns=(1,2,3,4,5,6,7,8),show='headings',yscrollcommand=tree_scrollbar.set)
         tree_scrollbar.config(command=trv.yview)
-        
+        # Pembentukan kolom Table
         trv.column(1,width=100)
         trv.column(2,width=100)
         trv.column(3,width=50)
@@ -282,7 +317,7 @@ class MenuUtama:
         trv.column(6,width=100)
         trv.column(7,width=150)
         trv.column(8,width=150)
-
+        # Pemberian nama kolom table
         trv.heading(1, text ="Nama")
         trv.heading(2, text ="Paket")
         trv.heading(3, text ="Porsi")
@@ -294,6 +329,7 @@ class MenuUtama:
         trv.pack()
         
         # Function Memilih table agar muncul di form
+
         def selector(Event):
             resetForm()
             dataNama.delete(0,END)
@@ -318,6 +354,7 @@ class MenuUtama:
             noEntry.insert(0,values[7])
 
         #Event Listener untuk mendengarkan double klik
+
         trv.bind("<Double-1>",selector)
 
 if __name__ == '__main__':
