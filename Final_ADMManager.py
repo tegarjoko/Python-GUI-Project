@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter.ttk import Treeview
 import sqlite3
-import datetime as datee
 from tkinter import messagebox
 import Final_Login as fl
 
@@ -237,5 +236,5 @@ class ADMManager:
 
 if __name__ == '__main__':
     rootADM = Tk()
-    application = ADMManager(rootADM)
+    application = fl.loginForm(rootADM)
     rootADM.mainloop()

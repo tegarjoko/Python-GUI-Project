@@ -359,5 +359,5 @@ class MenuUtama:
 
 if __name__ == '__main__':
     root = Tk()
-    application = MenuUtama(root)
+    application = fl.loginForm(root)
     root.mainloop()
