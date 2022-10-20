@@ -16,8 +16,13 @@ sebelum menjalankan program pastikan anda punya module tkcalendar. karena jika t
 jika tidak ada tkcalendar , maka silahkan install terlebih dahulu.
 
 1.connect ke internet 
+
 2.buka cmd
+
 3.ketik 'pip install tkcalendar'
+
 4.tunggu proses download dan install selesai
+
 5.jika sudah silahkan ulangi proses cara cek diatas
+
 6.siap dijalankan
