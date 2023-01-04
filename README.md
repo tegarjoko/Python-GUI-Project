@@ -1,5 +1,5 @@
 # Python-GUI-Project
-Catering Python Program with GUI Program using tkinter libraries and sqlite 3.
+Python Program with GUI Program using tkinter libraries and sqlite 3.
 
 
 PROGRAM DIMULAI DARI Final_Login
