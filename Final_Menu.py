@@ -9,7 +9,7 @@ from tkinter import messagebox
 class MenuUtama:
     def __init__(self,root):
         self.root = root
-        root.title('Menu Utama Catering')
+        root.title('Coba Perubahan')
         root.geometry("1020x600")
         root.config(bg='lightblue')
         root.iconbitmap('menu-ico.ico')
